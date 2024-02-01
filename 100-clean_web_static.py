@@ -2,12 +2,13 @@
 '''Module containing do_pack'''
 import os.path as path
 from datetime import datetime
-from fabric.api import local, put, env, run
+from fabric.api import *
+import os
 
-# env.hosts = [
-#     '54.236.47.141',
-#     '100.26.236.251'
-# ]
+env.hosts = [
+    '54.236.47.141',
+    '100.26.236.251'
+]
 
 
 def do_pack():
@@ -25,48 +26,50 @@ def do_pack():
 
 def do_deploy(archive_path):
     '''distributes an archive to your web servers'''
-    env.hosts = [
-    '54.236.47.141',
-    '100.26.236.251'
-    ]
     if path.isfile(archive_path) is False:
-        print("Invalid path")
         return False
     file = archive_path.split("/")[-1]
     file_name = file.split(".")[0]
     if put(archive_path, f"/tmp/{file}").failed:
         return False
     target_dir = "/data/web_static/releases/{}/".format(file_name)
-    print("Target dir: ", target_dir)
 
     if run("rm -rf {}".format(target_dir)).failed:
-        print("Cannot delete {}".format(target_dir))
         return False
     if run("mkdir -p {}".format(target_dir)).failed:
-        print("mkdir failed")
         return False
     if run("tar -xzf /tmp/{} -C {}".format(file, target_dir)).failed:
-        print("decompression failed")
         return False
     if run("mv -f {}web_static/* {}".format(target_dir, target_dir)).failed:
-        print("mv failed")
         return False
     if run("rm -f /tmp/{}".format(file)).failed:
-        print("rm /tmp/{} failed".format(file))
         return False
     if run("rm -rf /data/web_static/current").failed:
-        print("Symbolic link removal failed")
         return False
     if run("ln -s {} /data/web_static/current".format(target_dir)).failed:
-        print("symbolic link creation failed")
         return False
-    print("New version deployed!")
     return True
 
 
 def deploy():
     '''creates and distributes an archive to your web servers.'''
-    archive_path = do_pack()
-    if archive_path is None:
+    file_path = do_pack()
+    if file_path is None:
         return False
-    return (do_deploy(archive_path))
+    return (do_deploy(file_path))
+
+
+def do_clean(number=0):
+    ''' that deletes out-of-date archives'''
+    number = 1 if int(number) == 0 else int(number)
+
+    archives = sorted(os.listdir("versions"))
+    [archives.pop() for i in range(number)]
+    with lcd("versions"):
+        [local("rm ./{}".format(a)) for a in archives]
+
+    with cd("/data/web_static/releases"):
+        archives = run("ls -tr").split()
+        archives = [a for a in archives if "web_static_" in a]
+        [archives.pop() for i in range(number)]
+        [run("rm -rf ./{}".format(a)) for a in archives]
