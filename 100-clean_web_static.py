@@ -4,10 +4,10 @@ import os.path as path
 from datetime import datetime
 from fabric.api import local, put, env, run
 
-env.hosts = [
-    '54.236.47.141',
-    '100.26.236.251'
-]
+# env.hosts = [
+#     '54.236.47.141',
+#     '100.26.236.251'
+# ]
 
 
 def do_pack():
@@ -25,6 +25,10 @@ def do_pack():
 
 def do_deploy(archive_path):
     '''distributes an archive to your web servers'''
+    env.hosts = [
+    '54.236.47.141',
+    '100.26.236.251'
+    ]
     if path.isfile(archive_path) is False:
         print("Invalid path")
         return False

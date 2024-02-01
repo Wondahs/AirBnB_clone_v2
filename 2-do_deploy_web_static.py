@@ -26,7 +26,7 @@ def do_pack():
 def do_deploy(archive_path):
     '''distributes an archive to your web servers'''
     if path.isfile(archive_path) is False:
-        print("Invalid path")
+        # print("Invalid path")
         return False
     file = archive_path.split("/")[-1]
     file_name = file.split(".")[0]
@@ -36,25 +36,25 @@ def do_deploy(archive_path):
     print("Target dir: ", target_dir)
 
     if run("rm -rf {}".format(target_dir)).failed:
-        print("Cannot delete {}".format(target_dir))
+        # print("Cannot delete {}".format(target_dir))
         return False
     if run("mkdir -p {}".format(target_dir)).failed:
-        print("mkdir failed")
+        # print("mkdir failed")
         return False
     if run("tar -xzf /tmp/{} -C {}".format(file, target_dir)).failed:
-        print("decompression failed")
+        # print("decompression failed")
         return False
     if run("mv -f {}web_static/* {}".format(target_dir, target_dir)).failed:
-        print("mv failed")
+        # print("mv failed")
         return False
     if run("rm -f /tmp/{}".format(file)).failed:
-        print("rm /tmp/{} failed".format(file))
+        # print("rm /tmp/{} failed".format(file))
         return False
     if run("rm -rf /data/web_static/current").failed:
-        print("Symbolic link removal failed")
+        # print("Symbolic link removal failed")
         return False
     if run("ln -s {} /data/web_static/current".format(target_dir)).failed:
-        print("symbolic link creation failed")
+        # print("symbolic link creation failed")
         return False
-    print("New version deployed!")
+    # print("New version deployed!")
     return True
