@@ -47,6 +47,8 @@ def do_deploy(archive_path):
     if run("mv -f {}web_static/* {}".format(target_dir, target_dir)).failed:
         # print("mv failed")
         return False
+    if run("rm -rf {}web_static/".format(target_dir)).failed:
+        return False
     if run("rm -f /tmp/{}".format(file)).failed:
         # print("rm /tmp/{} failed".format(file))
         return False

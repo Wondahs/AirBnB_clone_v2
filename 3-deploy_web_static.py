@@ -5,8 +5,8 @@ from datetime import datetime
 from fabric.api import local, put, env, run
 
 env.hosts = [
-    '54.236.47.141',
-    '100.26.236.251'
+    '100.26.236.251',
+    '54.236.47.141'
 ]
 
 
@@ -40,6 +40,8 @@ def do_deploy(archive_path):
     if run("tar -xzf /tmp/{} -C {}".format(file, target_dir)).failed:
         return False
     if run("mv -f {}web_static/* {}".format(target_dir, target_dir)).failed:
+        return False
+    if run("rm -rf {}web_static/".format(target_dir)).failed:
         return False
     if run("rm -f /tmp/{}".format(file)).failed:
         return False
