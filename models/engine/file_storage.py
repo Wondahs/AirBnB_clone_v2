@@ -22,7 +22,7 @@ class FileStorage:
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
-        self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
+        self.__objects["{}.{}".format(type(obj).__name__, obj.id)] = obj
 
     def save(self):
         """Saves storage dictionary to file"""
@@ -61,3 +61,9 @@ class FileStorage:
         """to delete obj from __objects if it’s inside"""
         if obj is not None:
             del FileStorage.__objects["{}.{}".format(type(obj).__name__, obj.id)]
+
+    def close(self):
+        '''
+        call reload() method for deserializing the JSON file to objects
+        '''
+        self.reload()
