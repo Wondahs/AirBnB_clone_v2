@@ -62,6 +62,7 @@ class BaseModel:
             del dictionary['_sa_instance_state']
         dictionary.update({'__class__':
             (str(type(self)).split('.')[-1]).split('\'')[0]})
+        #print(type(dictionary['created_at'].isoformat()))
         dictionary['created_at'] = self.created_at.isoformat()
         dictionary['updated_at'] = self.updated_at.isoformat()
         return dictionary
