@@ -62,8 +62,8 @@ class BaseModel:
             del dictionary['_sa_instance_state']
         dictionary.update({'__class__':
             (str(type(self)).split('.')[-1]).split('\'')[0]})
-        del dictionary['created_at'] #= self.created_at.isoformat()
-        del dictionary['updated_at'] #= self.updated_at.isoformat()
+        dictionary['created_at'] = self.created_at.isoformat()
+        dictionary['updated_at'] = self.updated_at.isoformat()
         return dictionary
 
     def delete(self):
