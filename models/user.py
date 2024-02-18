@@ -16,7 +16,6 @@ class User(BaseModel, Base):
         first_name(sqlalchemy String) :- Represents User first name
         last_name(sqlalchemy String) :- Represents User last name
     """
-
     __tablename__ = "users"
     email = Column(String(128), nullable=False)
     password = Column(String(128), nullable=False)
