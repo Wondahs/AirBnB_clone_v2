@@ -7,15 +7,23 @@ import uuid
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, DateTime
+from os import getenv
+
 
 Base = declarative_base()
 
 
 class BaseModel:
     '''BaseModel class'''
-    id = Column(String(60), primary_key=True, default=uuid.uuid4, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
+        id = Column(String(60), primary_key=True,
+                    default=uuid.uuid4, nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    else:
+        id = uuid.uuid4()
+        created_at = datetime.utcnow()
+        updated_at = datetime.utcnow()
 
     def __init__(self, *args, **kwargs):
         '''Instantiation method.'''

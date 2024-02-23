@@ -25,8 +25,8 @@ class DBStorage:
     def __init__(self):
         '''Starts engine'''
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
-                .format(user, password, host, db),
-                pool_pre_ping=True)
+                                      .format(user, password, host, db),
+                                      pool_pre_ping=True)
         if getenv('HBNB_ENV') == 'test':
             Base.metadata.drop_all(self.__engine)
 
@@ -54,11 +54,11 @@ class DBStorage:
                     value = obj
                     obj_dict[key] = value
         return obj_dict
-    
+
     def new(self, obj):
         '''Adds new object to current db session'''
         self.__session.add(obj)
-    
+
     def save(self):
         '''Commit all changes of current db session'''
         self.__session.commit()

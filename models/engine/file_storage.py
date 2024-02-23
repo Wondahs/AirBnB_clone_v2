@@ -18,7 +18,7 @@ class FileStorage:
         if cls:
             dictionary = {}
             for key, value in self.__objects.items():
-                if type(value) == cls:
+                if type(value) is cls:
                     dictionary[key] = value
             return dictionary
         return self.__objects

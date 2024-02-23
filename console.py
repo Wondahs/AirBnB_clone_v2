@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 '''Module containing console - the entry point of the command interpreter'''
 import cmd
+import sys
 from models.base_model import BaseModel
 from models import storage
 from models.user import User
@@ -30,6 +31,8 @@ def key_parser(line):
                 continue
         key_val_dict[key_val[0]] = value
     return key_val_dict
+
+
 class HBNBCommand(cmd.Cmd):
     '''Command interpreter class'''
     prompt = "(hbnb) "
@@ -71,7 +74,7 @@ class HBNBCommand(cmd.Cmd):
             result = result.replace("  ", " ")
             return result
         return super().precmd(line)
-    
+
     def emptyline(self) -> bool:
         '''Handles Emptyline'''
         return super().emptyline()

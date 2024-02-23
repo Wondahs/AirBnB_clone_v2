@@ -5,19 +5,20 @@ from sqlalchemy.orm import Relationship
 from os import getenv
 from models.city import City
 
-class State(BaseModel, Base):
-    '''State Class'''
-    __tablename__ = "states"
-    name: str = Column(String(128), nullable=False)
-    # Define One-to-Many relationship with City
-    cities = Relationship("City", backref="state", cascade="all, delete-orphan")
+if getenv('HBNB_TYPE_STORAGE') == 'db':
+    class State(BaseModel, Base):
+        '''State Class'''
+        __tablename__ = "states"
+        name: str = Column(String(128), nullable=False)
+        # Define One-to-Many relationship with City
+        cities = Relationship("City",
+                              backref="state", cascade="all, delete-orphan")
+else:
+    class State(BaseModel):
+        '''State Class'''
+        name = ""
 
-    def __init__(self, *args, **kwargs):
-        '''Instantiation Method'''
-        super().__init__(*args, **kwargs)
-
-    # Also include relationship if storage is not db
-    if getenv("HBNB_TYPE_STORAGE") != "db":
+        # Also include relationship if storage is not db
         @property
         def cities(self):
             '''
@@ -25,7 +26,7 @@ class State(BaseModel, Base):
             with state_id equals to the current State.id
             '''
             from models import storage
-            
+
             cities_list = []
             for key, obj in storage.all(City).items():
                 if obj.state_id == self.id:
