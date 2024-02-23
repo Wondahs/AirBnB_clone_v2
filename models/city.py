@@ -1,16 +1,19 @@
 #!/usr/bin/python3
-""" City Module for HBNB project """
-from models.base_model import BaseModel
-from models.base_model import Base
-from sqlalchemy import Column, Integer, String, Sequence, ForeignKey
-from sqlalchemy.orm import relationship
-from os import getenv
-
+'''Module containing City Class'''
+from models.base_model import BaseModel, Base, Column, String
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Relationship, backref
 
 class City(BaseModel, Base):
-    """ The city class, contains state ID and name """
-    #if getenv("HBNB_TYPE_STORAGE") == "db":
+    '''City Class'''
     __tablename__ = "cities"
-    state_id = Column(String(60), ForeignKey('states.id'), nullable=False)
-    name = Column(String(128), nullable=False)
-    places = relationship("Place", backref="cities", cascade="delete")
+    name: str = Column(String(128), nullable=False)
+    # Define foeign key
+    state_id: str = Column(String(60), ForeignKey('states.id'), nullable=False)
+    # One to many relationship with Place
+    places = Relationship("Place", backref="cities", cascade="all, delete-orphan")
+
+
+    def __init__(self, *args, **kwargs):
+        '''Instantiation Method'''
+        super().__init__(*args, **kwargs)

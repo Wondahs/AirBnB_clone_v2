@@ -1,79 +1,76 @@
-#!/usr/bin/env python3
-"""place Module"""
+#!/usr/bin/python3
+'''Module containing Place Class'''
 from os import getenv
-import models
-from models.base_model import BaseModel, Base
-from sqlalchemy import Column, ForeignKey, String, Integer, Float
-from sqlalchemy.orm import relationship
-from models.amenity import Amenity
-from models.review import Review
-from sqlalchemy import Table
+from models.base_model import BaseModel, Base, Column, String
+from sqlalchemy import Integer, ForeignKey, Float, Table
+from models.review import Review, Relationship
 
+place_amenity = Table("place_amenity", Base.metadata,
+                      Column("place_id", String(60), ForeignKey("places.id"),
+                             nullable=False),
+                      Column("amenity_id", String(60),
+                             ForeignKey("amenities.id"),
+							 nullable=False))
 
-#if getenv("HBNB_TYPE_STORAGE", None) == "db":
-association_table = Table("place_amenity", Base.metadata,
-                        Column("place_id", String(60),
-                                ForeignKey("places.id"),
-                                primary_key=True, nullable=False),
-                        Column("amenity_id", String(60),
-                                ForeignKey("amenities.id"),
-                                primary_key=True, nullable=False))
 
 class Place(BaseModel, Base):
-    """Represents a Place for MySQL database
-    Inherits from BaseModel and Base (in this order)
-    Attributes:-
-        __tablename__(str): Represents Table name Places
-        city_id(sqlalchemy String): Represents city id, fkey to cities.id
-        user_id(sqlalchemy String): Represents user id, fkey to users.id
-        name(sqlalchemy String): Represents city name
-        description(sqlalchemy String): Represents city description
-        number_rooms(sqlalchemy Integer): Represents number of rooms
-        number_bathrooms(sqlalchemy Integer): Represents number of bathrooms
-        max_guest(sqlalchemy Integer): Represents number of maximum guests
-        price_by_night(sqlalchemy Integer): Represents price by night
-        Latitude(sqlalchemy Float): Represents Latitude
-        Longitude(sqlalchemy Float): Represents Longitude
-    fkey -- Foriegn key    
-    """
-
-    #if getenv("HBNB_TYPE_STORAGE", None) == "db":
+    '''Place Class'''
     __tablename__ = "places"
-    city_id = Column(String(60), ForeignKey('cities.id'), nullable=False)
-    user_id = Column(String(60), ForeignKey('users.id'), nullable=False)
-    name = Column(String(128), nullable=False)
+    city_id: str = Column(String(60), ForeignKey("cities.id"),
+                          nullable=False)
+    user_id: str = Column(String(60), ForeignKey("users.id"),
+                          nullable=False)
+    name: str = Column(String(128), nullable=False)
     description = Column(String(1024))
-    number_rooms = Column(Integer, default=0)
-    number_bathrooms = Column(Integer, default=0)
-    max_guest = Column(Integer, default=0)
-    price_by_night = Column(Integer, default=0)
-    latitude = Column(Float) 
-    longitude = Column(Float)
-    reviews = relationship("Review", backref="place", cascade="delete")
-    amenities = relationship("Amenity", secondary=association_table,
-                            viewonly=False, overlaps="place_amenities")
-    amenity_ids = []
+    number_rooms: int = Column(Integer, nullable=False, default=0)
+    number_bathrooms: int = Column(Integer, nullable=False, default=0)
+    max_guest: int = Column(Integer, nullable=False, default=0)
+    price_by_night: int = Column(Integer, nullable=False, default=0)
+    latitude: float = Column(Float)
+    longitude: float = Column(Float)
+    amenity_ids: list = []
+    # Create one-to-many relationship with Review
+    reviews = Relationship("Review", backref="place",
+                           cascade="all, delete-orphan")
+    # Ceate many-to-many relationship with Amenities
+    amenities = Relationship("Amenity", secondary=place_amenity,
+                             viewonly=False)
 
-    if getenv("HBNB_TYPE_STORAGE", None) != "db":
+    def __init__(self, *args, **kwargs):
+        '''Instantiation Method'''
+        super().__init__(*args, **kwargs)
+
+    # Also include relationship if storage is not db
+    if getenv("HBNB_TYPE_STORAGE") != "db":
         @property
         def reviews(self):
-            """Get a list of all linked Reviews."""
-            review_list = []
-            for review in list(models.storage.all(Review).values()):
-                if review.place_id == self.id:
-                    review_list.append(review)
-            return review_list
+            '''Include relationship if storage is not db'''
+            from models import storage
 
+            obj_list = []
+            for key, obj in storage.all(Review).items():
+                if obj.place_id == self.id:
+                    obj_list.append(obj)
+            return obj_list
+        
         @property
         def amenities(self):
-            """Get/set linked Amenities."""
-            amenity_list = []
-            for amenity in list(models.storage.all(Amenity).values()):
-                if amenity.id in self.amenity_ids:
-                    amenity_list.append(amenity)
-            return amenity_list
-
+            '''
+            Returns the list of Amenity instances
+            based on the attribute amenity_ids that contains all Amenity.id
+            linked to the Place.
+            '''
+            return self.amenity_ids
+        
         @amenities.setter
-        def amenities(self, value):
-            if type(value) == Amenity:
-                self.amenity_ids.append(value.id)
+        def amenities(self, obj=None):
+            from models.amenity import Amenity
+            '''
+            Handles append method for adding an Amenity.id
+            to the attribute amenity_ids. This method should accept
+            only Amenity object, otherwise, do nothing.
+            '''
+            if obj and obj.__class__.__name__ == "Amenity":
+                self.amenity_ids.append(obj.id)
+
+

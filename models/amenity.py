@@ -1,14 +1,17 @@
 #!/usr/bin/python3
-"""Amenity Module for HBNB project """
-from models.base_model import BaseModel, Base
-from sqlalchemy import Column, String
-from sqlalchemy.orm import relationship
-from os import getenv
-
+'''Module containing Amenity Class'''
+from models.base_model import BaseModel, Base, Column, String
+from sqlalchemy.orm import Relationship
+from models.place import place_amenity
 
 
 class Amenity(BaseModel, Base):
-    """Amenity class"""
+    '''Amenity Class'''
     __tablename__ = "amenities"
-    name = Column(String(128), nullable=False)
-    place_amenities = relationship("Place", secondary="place_amenity", viewonly=False)
+    name: str = Column(String(128), nullable=False)
+    place_amenities = Relationship("Place", secondary=place_amenity,
+                                   viewonly=False, overlaps="amenities")
+
+    def __init__(self, *args, **kwargs):
+        '''Instantiation Method'''
+        super().__init__(*args, **kwargs)
